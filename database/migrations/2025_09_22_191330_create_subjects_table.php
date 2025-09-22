@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->string('type')->default('topic'); // topic, genre, classification, etc.
+            $table->json('metadata')->nullable(); // Flexible metadata
             $table->timestamps();
         });
     }

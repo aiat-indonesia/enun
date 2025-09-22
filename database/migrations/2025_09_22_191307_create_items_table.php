@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('instance_id')->constrained()->onDelete('cascade');
+            $table->string('item_identifier')->nullable(); // Barcode, shelfmark, etc.
+            $table->string('location')->nullable(); // Physical or virtual location
+            $table->string('call_number')->nullable(); // Library call number
+            $table->string('availability')->default('available'); // available, checked_out, damaged, etc.
+            $table->json('metadata')->nullable(); // Flexible metadata
             $table->timestamps();
         });
     }

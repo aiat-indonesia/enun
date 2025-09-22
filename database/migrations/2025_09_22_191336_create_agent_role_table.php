@@ -13,7 +13,14 @@ return new class extends Migration
     {
         Schema::create('agent_role', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('agent_id')->constrained()->onDelete('cascade');
+            $table->string('agentable_type'); // Polymorphic relationship
+            $table->unsignedBigInteger('agentable_id');
+            $table->string('role'); // author, editor, translator, publisher, etc.
             $table->timestamps();
+            
+            $table->index(['agentable_type', 'agentable_id']);
+            $table->unique(['agent_id', 'agentable_type', 'agentable_id', 'role'], 'agent_role_unique');
         });
     }
 

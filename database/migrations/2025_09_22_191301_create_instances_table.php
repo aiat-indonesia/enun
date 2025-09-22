@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('instances', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('work_id')->constrained()->onDelete('cascade');
+            $table->string('label'); // Display label for this instance
+            $table->foreignId('publisher_id')->nullable()->constrained('agents')->onDelete('set null');
+            $table->foreignId('publication_place_id')->nullable()->constrained('places')->onDelete('set null');
+            $table->year('publication_year')->nullable();
+            $table->string('format')->nullable(); // print, digital, manuscript, etc.
+            $table->json('identifiers')->nullable(); // ISBN, DOI, ISSN, etc.
+            $table->json('metadata')->nullable(); // Flexible metadata
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

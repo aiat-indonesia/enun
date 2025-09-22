@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('agents', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('type')->default('person'); // person, organization, publisher, etc.
+            $table->date('birth_date')->nullable();
+            $table->date('death_date')->nullable();
+            $table->text('biography')->nullable();
+            $table->json('metadata')->nullable(); // Flexible metadata
             $table->timestamps();
         });
     }
