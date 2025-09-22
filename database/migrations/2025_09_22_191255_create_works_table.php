@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('languages')->nullable(); // Array of languages
             $table->text('summary')->nullable();
             $table->string('type')->nullable(); // manuscript, tafsir, book, journal, etc.
-            $table->string('status')->default('draft'); // draft, review, published
+            $table->string('status')->default('draft'); // draft, in_review, published, archived
             $table->foreignId('primary_place_id')->nullable()->constrained('places')->onDelete('set null');
             $table->json('metadata')->nullable(); // Flexible metadata
             $table->json('alternative_titles')->nullable(); // Array of alternative titles
