@@ -47,6 +47,11 @@ class Place extends Model
         return $this->hasMany(Work::class, 'primary_place_id');
     }
 
+    public function works(): HasMany
+    {
+        return $this->hasMany(Work::class, 'primary_place_id');
+    }
+
     public function instancesAsPublication(): HasMany
     {
         return $this->hasMany(Instance::class, 'publication_place_id');

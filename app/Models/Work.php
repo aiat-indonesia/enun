@@ -16,12 +16,13 @@ use Spatie\Tags\HasTags;
 class Work extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\WorkFactory> */
-    use HasFactory, SoftDeletes, InteractsWithMedia, HasTags;
+    use HasFactory, HasTags, InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [
         'slug',
         'title',
         'subtitle',
+        'description',
         'languages',
         'summary',
         'type',
