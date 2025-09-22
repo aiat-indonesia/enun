@@ -17,11 +17,22 @@ class SubjectFactory extends Factory
     public function definition(): array
     {
         $subjects = [
-            'Tafsir Al-Quran', 'Hadist', 'Fiqh', 'Tasawuf', 'Aqidah', 'Sejarah Islam',
-            'Bahasa Arab', 'Naskah Kuno', 'Sastra Islam', 'Filsafat Islam',
-            'Pendidikan Islam', 'Hukum Islam', 'Ekonomi Islam', 'Politik Islam',
+            'Tafsir Al-Quran',
+            'Hadist',
+            'Fiqh',
+            'Tasawuf',
+            'Aqidah',
+            'Sejarah Islam',
+            'Bahasa Arab',
+            'Naskah Kuno',
+            'Sastra Islam',
+            'Filsafat Islam',
+            'Pendidikan Islam',
+            'Hukum Islam',
+            'Ekonomi Islam',
+            'Politik Islam',
         ];
-        
+
         return [
             'name' => fake()->randomElement($subjects),
             'description' => fake()->optional(0.7)->sentence(),

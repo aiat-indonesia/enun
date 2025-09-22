@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Instances;
 use App\Filament\Resources\Instances\Pages\CreateInstance;
 use App\Filament\Resources\Instances\Pages\EditInstance;
 use App\Filament\Resources\Instances\Pages\ListInstances;
+use App\Filament\Resources\Instances\RelationManagers;
 use App\Filament\Resources\Instances\Schemas\InstanceForm;
 use App\Filament\Resources\Instances\Tables\InstancesTable;
 use App\Models\Instance;
@@ -35,7 +36,7 @@ class InstanceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ItemsRelationManager::class,
         ];
     }
 

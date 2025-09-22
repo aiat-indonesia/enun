@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('agentable_id');
             $table->string('role'); // author, editor, translator, publisher, etc.
             $table->timestamps();
-            
+
             $table->index(['agentable_type', 'agentable_id']);
             $table->unique(['agent_id', 'agentable_type', 'agentable_id', 'role'], 'agent_role_unique');
         });

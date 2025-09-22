@@ -17,11 +17,11 @@ class PlaceFactory extends Factory
     public function definition(): array
     {
         $type = fake()->randomElement(['province', 'regency', 'city', 'village']);
-        
+
         // Indonesia bounds approximately
         $lat = fake()->latitude(-11, 6);
         $lng = fake()->longitude(95, 141);
-        
+
         return [
             'name' => fake()->city(),
             'type' => $type,

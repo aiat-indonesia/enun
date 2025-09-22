@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Works;
 use App\Filament\Resources\Works\Pages\CreateWork;
 use App\Filament\Resources\Works\Pages\EditWork;
 use App\Filament\Resources\Works\Pages\ListWorks;
+use App\Filament\Resources\Works\RelationManagers;
 use App\Filament\Resources\Works\Schemas\WorkForm;
 use App\Filament\Resources\Works\Tables\WorksTable;
 use App\Models\Work;
@@ -35,7 +36,10 @@ class WorkResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\InstancesRelationManager::class,
+            RelationManagers\AgentsRelationManager::class,
+            RelationManagers\AssetsRelationManager::class,
+            RelationManagers\SubjectsRelationManager::class,
         ];
     }
 

@@ -18,7 +18,7 @@ class AgentFactory extends Factory
     {
         $type = fake()->randomElement(['person', 'organization', 'publisher']);
         $name = $type === 'person' ? fake()->name() : fake()->company();
-        
+
         return [
             'name' => $name,
             'type' => $type,

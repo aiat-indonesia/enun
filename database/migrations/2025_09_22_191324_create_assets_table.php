@@ -23,7 +23,7 @@ return new class extends Migration
             $table->text('extracted_text')->nullable(); // For text search indexing
             $table->json('metadata')->nullable(); // Flexible metadata
             $table->timestamps();
-            
+
             $table->index(['assetable_type', 'assetable_id']);
         });
     }

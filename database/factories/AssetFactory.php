@@ -25,7 +25,7 @@ class AssetFactory extends Factory
             'txt' => 'text/plain',
         ];
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        
+
         return [
             'disk' => 'local',
             'path' => 'assets/' . fake()->year() . '/' . fake()->month() . '/' . $filename,

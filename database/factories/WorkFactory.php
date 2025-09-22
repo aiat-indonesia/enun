@@ -17,7 +17,7 @@ class WorkFactory extends Factory
     public function definition(): array
     {
         $title = fake()->words(mt_rand(2, 5), true);
-        
+
         return [
             'slug' => str($title)->slug(),
             'title' => $title,

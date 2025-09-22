@@ -27,8 +27,8 @@ class WorkForm
                                         TextInput::make('title')
                                             ->required()
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn (string $context, $state, callable $set) => 
-                                                $context === 'create' ? $set('slug', str($state)->slug()) : null),
+                                            ->afterStateUpdated(fn(string $context, $state, callable $set) =>
+                                            $context === 'create' ? $set('slug', str($state)->slug()) : null),
                                         TextInput::make('slug')
                                             ->required()
                                             ->unique(ignoreRecord: true),
@@ -36,7 +36,7 @@ class WorkForm
                                         Textarea::make('summary')
                                             ->rows(4),
                                     ])->columns(2),
-                                
+
                                 Section::make('Classification')
                                     ->schema([
                                         TagsInput::make('languages')
@@ -46,7 +46,7 @@ class WorkForm
                                             ->options([
                                                 'manuscript' => 'Manuscript',
                                                 'tafsir' => 'Tafsir',
-                                                'book' => 'Book', 
+                                                'book' => 'Book',
                                                 'journal' => 'Journal',
                                                 'article' => 'Article',
                                                 'thesis' => 'Thesis',
@@ -101,7 +101,7 @@ class WorkForm
                                             ->columns(2)
                                             ->defaultItems(0),
                                     ]),
-                                
+
                                 Section::make('Metadata')
                                     ->schema([
                                         KeyValue::make('metadata')
