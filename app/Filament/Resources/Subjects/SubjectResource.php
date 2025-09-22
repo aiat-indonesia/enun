@@ -18,6 +18,8 @@ class SubjectResource extends Resource
 {
     protected static ?string $model = Subject::class;
 
+    protected static ?string $modelPolicy = \App\Policies\SubjectPolicy::class;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

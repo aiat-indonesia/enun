@@ -21,6 +21,8 @@ class WorkResource extends Resource
 {
     protected static ?string $model = Work::class;
 
+    protected static ?string $modelPolicy = \App\Policies\WorkPolicy::class;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

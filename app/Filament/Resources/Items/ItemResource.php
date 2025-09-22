@@ -18,6 +18,8 @@ class ItemResource extends Resource
 {
     protected static ?string $model = Item::class;
 
+    protected static ?string $modelPolicy = \App\Policies\ItemPolicy::class;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

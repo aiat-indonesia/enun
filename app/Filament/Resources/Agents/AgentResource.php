@@ -18,6 +18,8 @@ class AgentResource extends Resource
 {
     protected static ?string $model = Agent::class;
 
+    protected static ?string $modelPolicy = \App\Policies\AgentPolicy::class;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

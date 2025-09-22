@@ -18,6 +18,8 @@ class AssetResource extends Resource
 {
     protected static ?string $model = Asset::class;
 
+    protected static ?string $modelPolicy = \App\Policies\AssetPolicy::class;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
