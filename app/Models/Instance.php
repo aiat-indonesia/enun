@@ -14,7 +14,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Instance extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\InstanceFactory> */
-    use HasFactory, SoftDeletes, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, SoftDeletes;
 
     protected $fillable = [
         'work_id',
@@ -66,5 +66,24 @@ class Instance extends Model implements HasMedia
     {
         return $this->hasMany(Asset::class, 'assetable_id')
             ->where('assetable_type', static::class);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('cover_images')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+            ->singleFile();
+
+        $this->addMediaCollection('preview_pages')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/tiff', 'application/pdf'])
+            ->useDisk('public');
+
+        $this->addMediaCollection('documents')
+            ->acceptsMimeTypes([
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ])
+            ->useDisk('public');
     }
 }

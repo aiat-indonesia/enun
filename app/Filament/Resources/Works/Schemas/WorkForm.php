@@ -2,15 +2,17 @@
 
 namespace App\Filament\Resources\Works\Schemas;
 
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class WorkForm
 {
@@ -27,72 +29,108 @@ class WorkForm
                                         TextInput::make('title')
                                             ->required()
                                             ->live(onBlur: true)
-                                            ->afterStateUpdated(fn(string $context, $state, callable $set) =>
-                                            $context === 'create' ? $set('slug', str($state)->slug()) : null),
+                                            ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
                                         TextInput::make('slug')
                                             ->required()
                                             ->unique(ignoreRecord: true),
-                                        TextInput::make('subtitle'),
                                         Textarea::make('summary')
-                                            ->rows(4),
-                                    ])->columns(2),
+                                            ->rows(3)
+                                            ->columnSpanFull(),
+                                        Textarea::make('description')
+                                            ->rows(6)
+                                            ->columnSpanFull(),
+                                        TagsInput::make('languages')
+                                            ->suggestions(['Arabic', 'English', 'Persian', 'Turkish', 'Urdu', 'Malay'])
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columns(2),
 
                                 Section::make('Classification')
                                     ->schema([
-                                        TagsInput::make('languages')
-                                            ->suggestions(['id', 'ar', 'ms', 'jv', 'su', 'mad'])
-                                            ->helperText('Language codes: id (Indonesian), ar (Arabic), ms (Malay), jv (Javanese), etc.'),
                                         Select::make('type')
+                                            ->required()
                                             ->options([
                                                 'manuscript' => 'Manuscript',
-                                                'tafsir' => 'Tafsir',
                                                 'book' => 'Book',
-                                                'journal' => 'Journal',
                                                 'article' => 'Article',
-                                                'thesis' => 'Thesis',
+                                                'compilation' => 'Compilation',
+                                                'translation' => 'Translation',
+                                                'commentary' => 'Commentary',
+                                                'tafsir' => 'Tafsir',
+                                                'other' => 'Other',
                                             ]),
                                         Select::make('status')
                                             ->required()
                                             ->default('draft')
                                             ->options([
                                                 'draft' => 'Draft',
-                                                'review' => 'Under Review',
+                                                'in_review' => 'In Review',
                                                 'published' => 'Published',
+                                                'archived' => 'Archived',
                                             ]),
                                         Select::make('primary_place_id')
                                             ->relationship('primaryPlace', 'name')
                                             ->searchable()
                                             ->preload(),
-                                    ])->columns(2),
+                                        TagsInput::make('subjects')
+                                            ->suggestions(['Quranic Studies', 'Hadith', 'Fiqh', 'Theology', 'History', 'Literature'])
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columns(3),
                             ]),
 
                         Tabs\Tab::make('Additional Data')
                             ->schema([
                                 Section::make('Alternative Information')
                                     ->schema([
-                                        TagsInput::make('alternative_titles')
-                                            ->helperText('Alternative titles or transliterations'),
-                                        Repeater::make('external_identifiers')
+                                        Repeater::make('alternative_titles')
                                             ->schema([
+                                                TextInput::make('title')
+                                                    ->required(),
+                                                TextInput::make('language'),
                                                 Select::make('type')
                                                     ->options([
-                                                        'doi' => 'DOI',
+                                                        'transliteration' => 'Transliteration',
+                                                        'translation' => 'Translation',
+                                                        'variant' => 'Variant',
+                                                        'subtitle' => 'Subtitle',
+                                                    ]),
+                                            ])
+                                            ->columns(3)
+                                            ->defaultItems(0)
+                                            ->columnSpanFull(),
+
+                                        Repeater::make('identifiers')
+                                            ->schema([
+                                                Select::make('type')
+                                                    ->required()
+                                                    ->options([
                                                         'isbn' => 'ISBN',
                                                         'issn' => 'ISSN',
-                                                        'urn' => 'URN',
-                                                        'handle' => 'Handle',
-                                                    ])
-                                                    ->required(),
+                                                        'doi' => 'DOI',
+                                                        'oclc' => 'OCLC',
+                                                        'lccn' => 'LCCN',
+                                                        'internal' => 'Internal ID',
+                                                        'other' => 'Other',
+                                                    ]),
                                                 TextInput::make('value')
                                                     ->required(),
                                             ])
                                             ->columns(2)
                                             ->defaultItems(0),
-                                        Repeater::make('seller_links')
+
+                                        Repeater::make('external_links')
                                             ->schema([
-                                                TextInput::make('name')
+                                                Select::make('type')
                                                     ->required()
-                                                    ->placeholder('e.g., Gramedia, Tokopedia'),
+                                                    ->options([
+                                                        'website' => 'Website',
+                                                        'digital_library' => 'Digital Library',
+                                                        'catalog' => 'Catalog',
+                                                        'archive' => 'Archive',
+                                                        'bibliography' => 'Bibliography',
+                                                        'other' => 'Other',
+                                                    ]),
                                                 TextInput::make('url')
                                                     ->required()
                                                     ->url()
@@ -108,6 +146,47 @@ class WorkForm
                                             ->keyLabel('Field')
                                             ->valueLabel('Value')
                                             ->helperText('Additional metadata fields'),
+                                    ]),
+                            ]),
+
+                        Tabs\Tab::make('Media & Assets')
+                            ->schema([
+                                Section::make('Images')
+                                    ->schema([
+                                        FileUpload::make('images')
+                                            ->image()
+                                            ->multiple()
+                                            ->imageEditor()
+                                            ->maxFiles(10)
+                                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                            ->directory('work-images')
+                                            ->disk('public')
+                                            ->description('Upload cover images, thumbnails, or related photographs')
+                                            ->downloadable(),
+                                    ]),
+
+                                Section::make('Manuscripts')
+                                    ->schema([
+                                        FileUpload::make('manuscripts')
+                                            ->multiple()
+                                            ->maxFiles(50)
+                                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/tiff'])
+                                            ->directory('work-manuscripts')
+                                            ->disk('public')
+                                            ->description('Upload manuscript pages, scans, or PDF documents')
+                                            ->downloadable(),
+                                    ]),
+
+                                Section::make('Documents')
+                                    ->schema([
+                                        FileUpload::make('documents')
+                                            ->multiple()
+                                            ->maxFiles(20)
+                                            ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'])
+                                            ->directory('work-documents')
+                                            ->disk('public')
+                                            ->description('Upload related documents, transcriptions, or research notes')
+                                            ->downloadable(),
                                     ]),
                             ]),
                     ])

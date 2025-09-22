@@ -40,4 +40,19 @@ class Item extends Model implements HasMedia
         return $this->hasMany(Asset::class, 'assetable_id')
             ->where('assetable_type', static::class);
     }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('photos')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+            ->useDisk('public');
+
+        $this->addMediaCollection('scans')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/tiff', 'application/pdf'])
+            ->useDisk('public');
+
+        $this->addMediaCollection('condition_reports')
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png'])
+            ->useDisk('public');
+    }
 }

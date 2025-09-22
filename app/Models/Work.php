@@ -73,4 +73,24 @@ class Work extends Model implements HasMedia
         return $this->hasMany(Asset::class, 'assetable_id')
             ->where('assetable_type', static::class);
     }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('images')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+            ->singleFile();
+
+        $this->addMediaCollection('manuscripts')
+            ->acceptsMimeTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/tiff'])
+            ->useDisk('public');
+
+        $this->addMediaCollection('documents')
+            ->acceptsMimeTypes([
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'text/plain',
+            ])
+            ->useDisk('public');
+    }
 }
