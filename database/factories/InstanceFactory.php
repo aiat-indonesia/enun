@@ -17,7 +17,8 @@ class InstanceFactory extends Factory
     public function definition(): array
     {
         return [
-            'label' => fake()->words(2, true) . ' Edition',
+            'work_id' => \App\Models\Work::factory(),
+            'label' => fake()->words(2, true).' Edition',
             'publication_year' => fake()->optional(0.8)->year(),
             'format' => fake()->randomElement(['print', 'digital', 'manuscript', 'ebook', 'pdf']),
             'identifiers' => [

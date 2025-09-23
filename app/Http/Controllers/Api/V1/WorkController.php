@@ -15,12 +15,45 @@ class WorkController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = Work::with(['subjects', 'agents', 'primaryPlace'])
-            ->withCount('instances');
+        // Use Scout search if search query is provided
+        if ($request->has('q') && ! empty($request->get('q'))) {
+            $searchResults = Work::search($request->get('q'))
+                ->query(function ($query) use ($request) {
+                    $query->with(['subjects', 'agents', 'primaryPlace'])
+                        ->withCount('instances');
 
+                    // Apply additional filters to search results
+                    $this->applyFilters($query, $request);
+                });
+
+            $perPage = min($request->get('per_page', 15), 100);
+            $works = $searchResults->paginate($perPage);
+        } else {
+            // Regular query builder for non-search requests
+            $query = Work::with(['subjects', 'agents', 'primaryPlace'])
+                ->withCount('instances');
+
+            $this->applyFilters($query, $request);
+
+            $perPage = min($request->get('per_page', 15), 100);
+            $works = $query->paginate($perPage);
+        }
+
+        return WorkResource::collection($works);
+    }
+
+    /**
+     * Apply filters to the query.
+     */
+    private function applyFilters($query, Request $request): void
+    {
         // Apply filters
         if ($request->has('type')) {
             $query->where('type', $request->get('type'));
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->get('status'));
         }
 
         if ($request->has('language')) {
@@ -34,25 +67,33 @@ class WorkController extends Controller
         }
 
         if ($request->has('place')) {
-            $query->whereHas('primaryPlace', function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->get('place').'%');
-            });
+            $place = $request->get('place');
+            if (is_numeric($place)) {
+                $query->where('primary_place_id', $place);
+            } else {
+                $query->whereHas('primaryPlace', function ($q) use ($place) {
+                    $q->where('name', 'like', '%'.$place.'%');
+                });
+            }
         }
 
-        // Search functionality
-        if ($request->has('search')) {
+        // Sorting
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+
+        if (in_array($sortField, ['title', 'created_at', 'updated_at', 'type'])) {
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        // Legacy search support (kept for backward compatibility)
+        if ($request->has('search') && ! $request->has('q')) {
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('subtitle', 'like', "%{$search}%")
                     ->orWhere('summary', 'like', "%{$search}%");
             });
         }
-
-        // Pagination
-        $perPage = min($request->get('per_page', 15), 100); // Max 100 items per page
-        $works = $query->paginate($perPage);
-
-        return WorkResource::collection($works);
     }
 
     /**

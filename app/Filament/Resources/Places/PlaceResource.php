@@ -18,8 +18,6 @@ class PlaceResource extends Resource
 {
     protected static ?string $model = Place::class;
 
-    protected static ?string $modelPolicy = \App\Policies\PlacePolicy::class;
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

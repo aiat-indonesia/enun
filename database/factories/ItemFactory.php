@@ -17,6 +17,7 @@ class ItemFactory extends Factory
     public function definition(): array
     {
         return [
+            'instance_id' => \App\Models\Instance::factory(),
             'item_identifier' => fake()->optional(0.8)->regexify('[A-Z]{2}[0-9]{6}'),
             'location' => fake()->optional(0.9)->randomElement([
                 'Main Library - Floor 2',

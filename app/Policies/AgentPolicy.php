@@ -1,70 +1,69 @@
+<?php
 
+declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Agent;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class AgentPolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->can('view_any_agent');
+        return $authUser->can('ViewAny:Agent');
     }
 
-    public function view(User $user, Agent $agent): bool
+    public function view(AuthUser $authUser, Agent $agent): bool
     {
-        return $user->can('view_agent');
+        return $authUser->can('View:Agent');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('create_agent');
+        return $authUser->can('Create:Agent');
     }
 
-    public function update(User $user, Agent $agent): bool
+    public function update(AuthUser $authUser, Agent $agent): bool
     {
-        return $user->can('update_agent');
+        return $authUser->can('Update:Agent');
     }
 
-    public function delete(User $user, Agent $agent): bool
+    public function delete(AuthUser $authUser, Agent $agent): bool
     {
-        return $user->can('delete_agent');
+        return $authUser->can('Delete:Agent');
     }
 
-    public function restore(User $user, Agent $agent): bool
+    public function restore(AuthUser $authUser, Agent $agent): bool
     {
-        return $user->can('restore_agent');
+        return $authUser->can('Restore:Agent');
     }
 
-    public function forceDelete(User $user, Agent $agent): bool
+    public function forceDelete(AuthUser $authUser, Agent $agent): bool
     {
-        return $user->can('force_delete_agent');
+        return $authUser->can('ForceDelete:Agent');
     }
 
-    public function deleteAny(User $user): bool
+    public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $user->can('delete_any_agent');
+        return $authUser->can('ForceDeleteAny:Agent');
     }
 
-    public function forceDeleteAny(User $user): bool
+    public function restoreAny(AuthUser $authUser): bool
     {
-        return $user->can('force_delete_any_agent');
+        return $authUser->can('RestoreAny:Agent');
     }
 
-    public function restoreAny(User $user): bool
+    public function replicate(AuthUser $authUser, Agent $agent): bool
     {
-        return $user->can('restore_any_agent');
+        return $authUser->can('Replicate:Agent');
     }
 
-    public function replicate(User $user, Agent $agent): bool
+    public function reorder(AuthUser $authUser): bool
     {
-        return $user->can('replicate_agent');
-    }
-
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_agent');
+        return $authUser->can('Reorder:Agent');
     }
 }

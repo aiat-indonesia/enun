@@ -1,70 +1,69 @@
+<?php
 
+declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Asset;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class AssetPolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->can('view_any_asset');
+        return $authUser->can('ViewAny:Asset');
     }
 
-    public function view(User $user, Asset $asset): bool
+    public function view(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->can('view_asset');
+        return $authUser->can('View:Asset');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('create_asset');
+        return $authUser->can('Create:Asset');
     }
 
-    public function update(User $user, Asset $asset): bool
+    public function update(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->can('update_asset');
+        return $authUser->can('Update:Asset');
     }
 
-    public function delete(User $user, Asset $asset): bool
+    public function delete(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->can('delete_asset');
+        return $authUser->can('Delete:Asset');
     }
 
-    public function restore(User $user, Asset $asset): bool
+    public function restore(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->can('restore_asset');
+        return $authUser->can('Restore:Asset');
     }
 
-    public function forceDelete(User $user, Asset $asset): bool
+    public function forceDelete(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->can('force_delete_asset');
+        return $authUser->can('ForceDelete:Asset');
     }
 
-    public function deleteAny(User $user): bool
+    public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $user->can('delete_any_asset');
+        return $authUser->can('ForceDeleteAny:Asset');
     }
 
-    public function forceDeleteAny(User $user): bool
+    public function restoreAny(AuthUser $authUser): bool
     {
-        return $user->can('force_delete_any_asset');
+        return $authUser->can('RestoreAny:Asset');
     }
 
-    public function restoreAny(User $user): bool
+    public function replicate(AuthUser $authUser, Asset $asset): bool
     {
-        return $user->can('restore_any_asset');
+        return $authUser->can('Replicate:Asset');
     }
 
-    public function replicate(User $user, Asset $asset): bool
+    public function reorder(AuthUser $authUser): bool
     {
-        return $user->can('replicate_asset');
-    }
-
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_asset');
+        return $authUser->can('Reorder:Asset');
     }
 }

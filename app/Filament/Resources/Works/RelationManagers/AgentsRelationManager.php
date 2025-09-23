@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Works\RelationManagers;
 
+use App\Enums\AgentRole;
 use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -10,6 +11,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\DetachBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -27,6 +29,10 @@ class AgentsRelationManager extends RelationManager
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Select::make('role')
+                    ->options(AgentRole::options())
+                    ->required()
+                    ->placeholder('Select role'),
             ]);
     }
 
@@ -37,13 +43,22 @@ class AgentsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+                TextColumn::make('pivot.role')
+                    ->label('Role')
+                    ->formatStateUsing(fn (string $state): string => AgentRole::from($state)->label()),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
                 CreateAction::make(),
-                AttachAction::make(),
+                AttachAction::make()
+                    ->form(fn (AttachAction $action): array => [
+                        $action->getRecordSelect(),
+                        Select::make('role')
+                            ->options(AgentRole::options())
+                            ->required(),
+                    ]),
             ])
             ->recordActions([
                 EditAction::make(),

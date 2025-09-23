@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\WorkStatus;
+use App\Enums\WorkType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
@@ -16,7 +19,7 @@ use Spatie\Tags\HasTags;
 class Work extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\WorkFactory> */
-    use HasFactory, HasTags, InteractsWithMedia, SoftDeletes;
+    use HasFactory, HasTags, InteractsWithMedia, Searchable, SoftDeletes;
 
     protected $fillable = [
         'slug',
@@ -37,6 +40,8 @@ class Work extends Model implements HasMedia
     protected function casts(): array
     {
         return [
+            'type' => WorkType::class,
+            'status' => WorkStatus::class,
             'languages' => 'array',
             'metadata' => 'array',
             'alternative_titles' => 'array',
@@ -92,5 +97,33 @@ class Work extends Model implements HasMedia
                 'text/plain',
             ])
             ->useDisk('public');
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        // Only include actual database columns for Scout search
+        return [
+            'id' => $this->id,
+            'slug' => $this->slug,
+            'title' => $this->title,
+            'subtitle' => $this->subtitle,
+            'summary' => $this->summary,
+            'type' => $this->type,
+            'status' => $this->status,
+            'languages' => $this->languages ? implode(' ', $this->languages) : '',
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->status === 'published';
     }
 }

@@ -1,70 +1,69 @@
+<?php
 
+declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Instance;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class InstancePolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->can('view_any_instance');
+        return $authUser->can('ViewAny:Instance');
     }
 
-    public function view(User $user, Instance $instance): bool
+    public function view(AuthUser $authUser, Instance $instance): bool
     {
-        return $user->can('view_instance');
+        return $authUser->can('View:Instance');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('create_instance');
+        return $authUser->can('Create:Instance');
     }
 
-    public function update(User $user, Instance $instance): bool
+    public function update(AuthUser $authUser, Instance $instance): bool
     {
-        return $user->can('update_instance');
+        return $authUser->can('Update:Instance');
     }
 
-    public function delete(User $user, Instance $instance): bool
+    public function delete(AuthUser $authUser, Instance $instance): bool
     {
-        return $user->can('delete_instance');
+        return $authUser->can('Delete:Instance');
     }
 
-    public function restore(User $user, Instance $instance): bool
+    public function restore(AuthUser $authUser, Instance $instance): bool
     {
-        return $user->can('restore_instance');
+        return $authUser->can('Restore:Instance');
     }
 
-    public function forceDelete(User $user, Instance $instance): bool
+    public function forceDelete(AuthUser $authUser, Instance $instance): bool
     {
-        return $user->can('force_delete_instance');
+        return $authUser->can('ForceDelete:Instance');
     }
 
-    public function deleteAny(User $user): bool
+    public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $user->can('delete_any_instance');
+        return $authUser->can('ForceDeleteAny:Instance');
     }
 
-    public function forceDeleteAny(User $user): bool
+    public function restoreAny(AuthUser $authUser): bool
     {
-        return $user->can('force_delete_any_instance');
+        return $authUser->can('RestoreAny:Instance');
     }
 
-    public function restoreAny(User $user): bool
+    public function replicate(AuthUser $authUser, Instance $instance): bool
     {
-        return $user->can('restore_any_instance');
+        return $authUser->can('Replicate:Instance');
     }
 
-    public function replicate(User $user, Instance $instance): bool
+    public function reorder(AuthUser $authUser): bool
     {
-        return $user->can('replicate_instance');
-    }
-
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_instance');
+        return $authUser->can('Reorder:Instance');
     }
 }

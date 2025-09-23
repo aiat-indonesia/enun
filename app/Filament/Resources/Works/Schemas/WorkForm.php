@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Works\Schemas;
 
+use App\Enums\WorkStatus;
+use App\Enums\WorkType;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
@@ -36,9 +38,6 @@ class WorkForm
                                         Textarea::make('summary')
                                             ->rows(3)
                                             ->columnSpanFull(),
-                                        Textarea::make('description')
-                                            ->rows(6)
-                                            ->columnSpanFull(),
                                         TagsInput::make('languages')
                                             ->suggestions(['Arabic', 'English', 'Persian', 'Turkish', 'Urdu', 'Malay'])
                                             ->columnSpanFull(),
@@ -49,29 +48,17 @@ class WorkForm
                                     ->schema([
                                         Select::make('type')
                                             ->required()
-                                            ->options([
-                                                'manuscript' => 'Manuscript',
-                                                'book' => 'Book',
-                                                'article' => 'Article',
-                                                'compilation' => 'Compilation',
-                                                'translation' => 'Translation',
-                                                'commentary' => 'Commentary',
-                                                'tafsir' => 'Tafsir',
-                                                'other' => 'Other',
-                                            ]),
+                                            ->options(WorkType::options()),
                                         Select::make('status')
                                             ->required()
                                             ->default('draft')
-                                            ->options([
-                                                'draft' => 'Draft',
-                                                'in_review' => 'In Review',
-                                                'published' => 'Published',
-                                                'archived' => 'Archived',
-                                            ]),
+                                            ->options(WorkStatus::options()),
                                         Select::make('primary_place_id')
                                             ->relationship('primaryPlace', 'name')
                                             ->searchable()
-                                            ->preload(),
+                                            ->preload()
+                                            ->helperText('Select the primary geographic location associated with this work')
+                                            ->placeholder('Choose a place...'),
                                         TagsInput::make('subjects')
                                             ->suggestions(['Quranic Studies', 'Hadith', 'Fiqh', 'Theology', 'History', 'Literature'])
                                             ->columnSpanFull(),
@@ -161,7 +148,7 @@ class WorkForm
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                             ->directory('work-images')
                                             ->disk('public')
-                                            ->description('Upload cover images, thumbnails, or related photographs')
+                                            ->helperText('Upload cover images, thumbnails, or related photographs')
                                             ->downloadable(),
                                     ]),
 
@@ -173,7 +160,7 @@ class WorkForm
                                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/tiff'])
                                             ->directory('work-manuscripts')
                                             ->disk('public')
-                                            ->description('Upload manuscript pages, scans, or PDF documents')
+                                            ->helperText('Upload manuscript pages, scans, or PDF documents')
                                             ->downloadable(),
                                     ]),
 
@@ -185,7 +172,7 @@ class WorkForm
                                             ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'])
                                             ->directory('work-documents')
                                             ->disk('public')
-                                            ->description('Upload related documents, transcriptions, or research notes')
+                                            ->helperText('Upload related documents, transcriptions, or research notes')
                                             ->downloadable(),
                                     ]),
                             ]),

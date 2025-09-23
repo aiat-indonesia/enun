@@ -35,7 +35,7 @@ class EditWork extends EditRecord
         $actions = [];
 
         switch ($record->status) {
-            case 'draft':
+            case \App\Enums\WorkStatus::Draft:
                 $actions[] = Action::make('submit_for_review')
                     ->label('Submit for Review')
                     ->icon(Heroicon::OutlinedEye)
@@ -44,33 +44,31 @@ class EditWork extends EditRecord
                     ->modalHeading('Submit for Review')
                     ->modalDescription('Are you sure you want to submit this work for review?')
                     ->action(function () use ($record) {
-                        $record->update(['status' => 'in_review']);
+                        $record->update(['status' => \App\Enums\WorkStatus::InReview]);
 
                         Notification::make()
                             ->title('Work submitted for review')
                             ->success()
                             ->send();
-                    })
-                    ->visible(true);
+                    });
                 break;
 
-            case 'in_review':
+            case \App\Enums\WorkStatus::InReview:
                 $actions[] = Action::make('approve')
                     ->label('Approve & Publish')
                     ->icon(Heroicon::OutlinedCheckCircle)
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('Approve & Publish Work')
+                    ->modalHeading('Approve and Publish')
                     ->modalDescription('Are you sure you want to approve and publish this work?')
                     ->action(function () use ($record) {
-                        $record->update(['status' => 'published']);
+                        $record->update(['status' => \App\Enums\WorkStatus::Published]);
 
                         Notification::make()
                             ->title('Work approved and published')
                             ->success()
                             ->send();
-                    })
-                    ->visible(true);
+                    });
 
                 $actions[] = Action::make('reject')
                     ->label('Reject')
@@ -78,71 +76,51 @@ class EditWork extends EditRecord
                     ->color('danger')
                     ->requiresConfirmation()
                     ->modalHeading('Reject Work')
-                    ->modalDescription('Are you sure you want to reject this work and return it to draft?')
+                    ->modalDescription('Are you sure you want to reject this work? It will be returned to draft status.')
                     ->action(function () use ($record) {
-                        $record->update(['status' => 'draft']);
+                        $record->update(['status' => \App\Enums\WorkStatus::Draft]);
 
                         Notification::make()
                             ->title('Work rejected and returned to draft')
                             ->warning()
                             ->send();
-                    })
-                    ->visible(true);
+                    });
                 break;
 
-            case 'published':
+            case \App\Enums\WorkStatus::Published:
                 $actions[] = Action::make('archive')
                     ->label('Archive')
                     ->icon(Heroicon::OutlinedArchiveBox)
                     ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading('Archive Work')
-                    ->modalDescription('Are you sure you want to archive this published work?')
+                    ->modalDescription('Are you sure you want to archive this work?')
                     ->action(function () use ($record) {
-                        $record->update(['status' => 'archived']);
+                        $record->update(['status' => \App\Enums\WorkStatus::Archived]);
 
                         Notification::make()
                             ->title('Work archived')
                             ->warning()
                             ->send();
-                    })
-                    ->visible(true);
-
-                $actions[] = Action::make('unpublish')
-                    ->label('Unpublish')
-                    ->icon(Heroicon::OutlinedEyeSlash)
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->modalHeading('Unpublish Work')
-                    ->modalDescription('Are you sure you want to unpublish this work and return it to draft?')
-                    ->action(function () use ($record) {
-                        $record->update(['status' => 'draft']);
-
-                        Notification::make()
-                            ->title('Work unpublished and returned to draft')
-                            ->warning()
-                            ->send();
-                    })
-                    ->visible(true);
+                    });
                 break;
 
-            case 'archived':
+            case \App\Enums\WorkStatus::Archived:
                 $actions[] = Action::make('restore_to_published')
                     ->label('Restore to Published')
-                    ->icon(Heroicon::OutlinedArrowUturnUp)
-                    ->color('success')
+                    ->icon(Heroicon::OutlinedArrowPathRoundedSquare)
+                    ->color('info')
                     ->requiresConfirmation()
-                    ->modalHeading('Restore to Published')
+                    ->modalHeading('Restore Work')
                     ->modalDescription('Are you sure you want to restore this work to published status?')
                     ->action(function () use ($record) {
-                        $record->update(['status' => 'published']);
+                        $record->update(['status' => \App\Enums\WorkStatus::Published]);
 
                         Notification::make()
                             ->title('Work restored to published')
                             ->success()
                             ->send();
-                    })
-                    ->visible(true);
+                    });
                 break;
         }
 

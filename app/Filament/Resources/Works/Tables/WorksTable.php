@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Works\Tables;
 
+use App\Enums\WorkStatus;
+use App\Enums\WorkType;
+use App\Models\Work;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -13,9 +16,16 @@ use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\QueryBuilder;
+use Filament\Tables\Filters\QueryBuilder\Constraints\DateConstraint;
+use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
+use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint\Operators\IsRelatedToOperator;
+use Filament\Tables\Filters\QueryBuilder\Constraints\SelectConstraint;
+use Filament\Tables\Filters\QueryBuilder\Constraints\TextConstraint;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,6 +34,31 @@ class WorksTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->searchUsing(function (Builder $query, string $search): Builder {
+                // Use Laravel Scout for search if available
+                if (method_exists(Work::class, 'search') && ! empty($search)) {
+                    $searchResults = Work::search($search)->get();
+                    $searchIds = $searchResults->pluck('id')->toArray();
+
+                    if (! empty($searchIds)) {
+                        return $query->whereIn('id', $searchIds);
+                    }
+                }
+
+                // Fallback to database search
+                return $query->where(function (Builder $query) use ($search) {
+                    $query->where('title', 'like', "%{$search}%")
+                        ->orWhere('subtitle', 'like', "%{$search}%")
+                        ->orWhere('summary', 'like', "%{$search}%")
+                        ->orWhere('slug', 'like', "%{$search}%")
+                        ->orWhere('languages', 'like', "%{$search}%")
+                        ->orWhere('type', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$search}%")
+                        ->orWhereHas('primaryPlace', function (Builder $query) use ($search) {
+                            $query->where('name', 'like', "%{$search}%");
+                        });
+                });
+            })
             ->columns([
                 TextColumn::make('title')
                     ->searchable()
@@ -81,22 +116,44 @@ class WorksTable
             ])
             ->filters([
                 TrashedFilter::make(),
+
+                // Advanced QueryBuilder filters
+                QueryBuilder::make()
+                    ->constraints([
+                        TextConstraint::make('title')
+                            ->label('Title'),
+                        TextConstraint::make('subtitle')
+                            ->label('Subtitle'),
+                        TextConstraint::make('summary')
+                            ->label('Summary'),
+                        TextConstraint::make('slug')
+                            ->label('Slug'),
+                        SelectConstraint::make('type')
+                            ->label('Type')
+                            ->options(WorkType::options()),
+                        SelectConstraint::make('status')
+                            ->label('Status')
+                            ->options(WorkStatus::options()),
+                        TextConstraint::make('languages')
+                            ->label('Languages'),
+                        RelationshipConstraint::make('primaryPlace')
+                            ->label('Primary Place')
+                            ->selectable(
+                                IsRelatedToOperator::make()
+                                    ->titleAttribute('name')
+                                    ->searchable()
+                            ),
+                        DateConstraint::make('created_at')
+                            ->label('Created Date'),
+                        DateConstraint::make('updated_at')
+                            ->label('Updated Date'),
+                    ]),
+
+                // Legacy simple filters for backward compatibility
                 SelectFilter::make('type')
-                    ->options([
-                        'manuscript' => 'Manuscript',
-                        'tafsir' => 'Tafsir',
-                        'book' => 'Book',
-                        'journal' => 'Journal',
-                        'article' => 'Article',
-                        'thesis' => 'Thesis',
-                    ]),
+                    ->options(WorkType::options()),
                 SelectFilter::make('status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'in_review' => 'In Review',
-                        'published' => 'Published',
-                        'archived' => 'Archived',
-                    ]),
+                    ->options(WorkStatus::options()),
                 SelectFilter::make('primary_place_id')
                     ->relationship('primaryPlace', 'name')
                     ->searchable()

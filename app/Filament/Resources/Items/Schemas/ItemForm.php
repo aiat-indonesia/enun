@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Items\Schemas;
 
+use App\Enums\ItemAvailability;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -26,7 +27,10 @@ class ItemForm
                                             ->relationship('instance', 'label')
                                             ->required()
                                             ->searchable()
-                                            ->preload(),
+                                            ->preload()
+                                            ->helperText('Select the instance this item belongs to')
+                                            ->placeholder('Choose an instance...')
+                                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->work->title} - {$record->label}"),
                                         TextInput::make('item_identifier')
                                             ->required()
                                             ->helperText('Unique identifier for this specific item'),
@@ -35,14 +39,7 @@ class ItemForm
                                         Select::make('availability')
                                             ->required()
                                             ->default('available')
-                                            ->options([
-                                                'available' => 'Available',
-                                                'checked_out' => 'Checked Out',
-                                                'restricted' => 'Restricted Access',
-                                                'conservation' => 'In Conservation',
-                                                'missing' => 'Missing',
-                                                'damaged' => 'Damaged',
-                                            ]),
+                                            ->options(ItemAvailability::options()),
                                     ])
                                     ->columns(2),
 
@@ -69,7 +66,6 @@ class ItemForm
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                             ->directory('item-photos')
                                             ->disk('public')
-                                            ->description('Upload photos of the physical item')
                                             ->downloadable(),
                                     ]),
 
@@ -81,7 +77,6 @@ class ItemForm
                                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/tiff'])
                                             ->directory('item-scans')
                                             ->disk('public')
-                                            ->description('Upload high-resolution scans of pages or content')
                                             ->downloadable(),
                                     ]),
 
@@ -93,7 +88,6 @@ class ItemForm
                                             ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'])
                                             ->directory('item-reports')
                                             ->disk('public')
-                                            ->description('Upload condition reports, conservation notes, or appraisal documents')
                                             ->downloadable(),
                                     ]),
                             ]),

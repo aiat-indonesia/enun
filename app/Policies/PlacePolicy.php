@@ -1,70 +1,69 @@
+<?php
 
+declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Place;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class PlacePolicy
 {
-    public function viewAny(User $user): bool
+    use HandlesAuthorization;
+
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->can('view_any_place');
+        return $authUser->can('ViewAny:Place');
     }
 
-    public function view(User $user, Place $place): bool
+    public function view(AuthUser $authUser, Place $place): bool
     {
-        return $user->can('view_place');
+        return $authUser->can('View:Place');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('create_place');
+        return $authUser->can('Create:Place');
     }
 
-    public function update(User $user, Place $place): bool
+    public function update(AuthUser $authUser, Place $place): bool
     {
-        return $user->can('update_place');
+        return $authUser->can('Update:Place');
     }
 
-    public function delete(User $user, Place $place): bool
+    public function delete(AuthUser $authUser, Place $place): bool
     {
-        return $user->can('delete_place');
+        return $authUser->can('Delete:Place');
     }
 
-    public function restore(User $user, Place $place): bool
+    public function restore(AuthUser $authUser, Place $place): bool
     {
-        return $user->can('restore_place');
+        return $authUser->can('Restore:Place');
     }
 
-    public function forceDelete(User $user, Place $place): bool
+    public function forceDelete(AuthUser $authUser, Place $place): bool
     {
-        return $user->can('force_delete_place');
+        return $authUser->can('ForceDelete:Place');
     }
 
-    public function deleteAny(User $user): bool
+    public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $user->can('delete_any_place');
+        return $authUser->can('ForceDeleteAny:Place');
     }
 
-    public function forceDeleteAny(User $user): bool
+    public function restoreAny(AuthUser $authUser): bool
     {
-        return $user->can('force_delete_any_place');
+        return $authUser->can('RestoreAny:Place');
     }
 
-    public function restoreAny(User $user): bool
+    public function replicate(AuthUser $authUser, Place $place): bool
     {
-        return $user->can('restore_any_place');
+        return $authUser->can('Replicate:Place');
     }
 
-    public function replicate(User $user, Place $place): bool
+    public function reorder(AuthUser $authUser): bool
     {
-        return $user->can('replicate_place');
-    }
-
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_place');
+        return $authUser->can('Reorder:Place');
     }
 }

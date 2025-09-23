@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Instances\Schemas;
 
+use App\Enums\InstanceFormat;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -26,37 +28,74 @@ class InstanceForm
                                             ->relationship('work', 'title')
                                             ->required()
                                             ->searchable()
-                                            ->preload(),
+                                            ->preload()
+                                            ->helperText('Select the work this instance belongs to')
+                                            ->placeholder('Choose a work...'),
                                         TextInput::make('label')
                                             ->required()
                                             ->helperText('Specific label for this instance (e.g., "First Edition", "Manuscript A")'),
                                         Select::make('publisher_id')
                                             ->relationship('publisher', 'name')
                                             ->searchable()
-                                            ->preload(),
+                                            ->preload()
+                                            ->helperText('Select the publisher or publishing organization')
+                                            ->placeholder('Choose a publisher...'),
                                         Select::make('publication_place_id')
                                             ->relationship('publicationPlace', 'name')
                                             ->searchable()
-                                            ->preload(),
+                                            ->preload()
+                                            ->helperText('Select the place where this instance was published')
+                                            ->placeholder('Choose a place...'),
                                         TextInput::make('publication_year')
                                             ->numeric()
                                             ->minValue(1)
                                             ->maxValue(date('Y')),
-                                        TextInput::make('format')
-                                            ->placeholder('e.g., Hardcover, Paperback, Manuscript'),
+                                        Select::make('format')
+                                            ->options(InstanceFormat::options())
+                                            ->placeholder('Select format'),
                                     ])
                                     ->columns(2),
+                            ]),
 
-                                Section::make('Additional Data')
+                        Tabs\Tab::make('Additional Data')
+                            ->schema([
+                                Section::make('Identifiers')
                                     ->schema([
-                                        Textarea::make('identifiers')
-                                            ->rows(3)
-                                            ->helperText('JSON or structured identifiers for this instance'),
-                                        Textarea::make('metadata')
-                                            ->rows(4)
-                                            ->helperText('Additional metadata specific to this instance'),
-                                    ])
-                                    ->columns(1),
+                                        Repeater::make('identifiers')
+                                            ->schema([
+                                                Select::make('type')
+                                                    ->required()
+                                                    ->options([
+                                                        'isbn' => 'ISBN',
+                                                        'issn' => 'ISSN',
+                                                        'doi' => 'DOI',
+                                                        'oclc' => 'OCLC',
+                                                        'lccn' => 'LCCN',
+                                                        'barcode' => 'Barcode',
+                                                        'internal' => 'Internal ID',
+                                                        'other' => 'Other',
+                                                    ])
+                                                    ->placeholder('Select identifier type'),
+                                                TextInput::make('value')
+                                                    ->required()
+                                                    ->placeholder('Enter identifier value'),
+                                                TextInput::make('note')
+                                                    ->placeholder('Optional note about this identifier'),
+                                            ])
+                                            ->columns(3)
+                                            ->defaultItems(0)
+                                            ->columnSpanFull()
+                                            ->helperText('Add unique identifiers for this specific instance'),
+                                    ]),
+
+                                Section::make('Metadata')
+                                    ->schema([
+                                        KeyValue::make('metadata')
+                                            ->keyLabel('Field')
+                                            ->valueLabel('Value')
+                                            ->helperText('Additional metadata specific to this instance (pages, dimensions, etc.)')
+                                            ->columnSpanFull(),
+                                    ]),
                             ]),
 
                         Tabs\Tab::make('Media & Files')
@@ -71,8 +110,8 @@ class InstanceForm
                                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                             ->directory('instance-covers')
                                             ->disk('public')
-                                            ->description('Upload cover images or front matter')
-                                            ->downloadable(),
+                                            ->downloadable()
+                                            ->helperText('Upload cover images for this instance'),
                                     ]),
 
                                 Section::make('Preview Pages')
@@ -83,8 +122,8 @@ class InstanceForm
                                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/tiff'])
                                             ->directory('instance-previews')
                                             ->disk('public')
-                                            ->description('Upload sample pages or preview content')
-                                            ->downloadable(),
+                                            ->downloadable()
+                                            ->helperText('Upload preview pages or sample content'),
                                     ]),
 
                                 Section::make('Documents')
@@ -95,8 +134,8 @@ class InstanceForm
                                             ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'])
                                             ->directory('instance-documents')
                                             ->disk('public')
-                                            ->description('Upload related documents, catalogs, or publication info')
-                                            ->downloadable(),
+                                            ->downloadable()
+                                            ->helperText('Upload related documents or transcriptions'),
                                     ]),
                             ]),
                     ])
