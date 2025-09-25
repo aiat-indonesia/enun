@@ -70,7 +70,7 @@ class WorkSeeder extends Seeder
                 ],
                 'status' => 'published',
                 'visibility' => 'public',
-                'published_at' => now()->subYears(5),
+                'published_at' => now()->subYears(2),
             ],
             [
                 'type' => 'book',
@@ -94,7 +94,7 @@ class WorkSeeder extends Seeder
                 ],
                 'status' => 'published',
                 'visibility' => 'public',
-                'published_at' => now()->subYears(15),
+                'published_at' => now()->subYears(3),
             ],
             [
                 'type' => 'tafsir',
@@ -116,7 +116,7 @@ class WorkSeeder extends Seeder
                 ],
                 'status' => 'published',
                 'visibility' => 'public',
-                'published_at' => now()->subYears(20),
+                'published_at' => now()->subYears(4),
             ],
             [
                 'type' => 'manuscript',
@@ -140,7 +140,7 @@ class WorkSeeder extends Seeder
                 ],
                 'status' => 'published',
                 'visibility' => 'public',
-                'published_at' => now()->subYears(25),
+                'published_at' => now()->subYears(5),
             ],
         ];
 

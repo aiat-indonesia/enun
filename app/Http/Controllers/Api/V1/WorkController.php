@@ -47,7 +47,7 @@ class WorkController extends Controller
                 $query->where('place_id', $place);
             } else {
                 $query->whereHas('place', function ($q) use ($place) {
-                    $q->where('name', 'like', '%'.$place.'%');
+                    $q->where('name', 'like', '%' . $place . '%');
                 });
             }
         }
@@ -65,7 +65,6 @@ class WorkController extends Controller
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('subtitle', 'like', "%{$search}%")
                     ->orWhere('summary', 'like', "%{$search}%");
             });
         }

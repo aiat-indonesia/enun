@@ -13,20 +13,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin user
-        $admin = User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@enun.test',
-        ]);
+        // Create admin user (check if exists first)
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@enun.test'],
+            [
+                'name' => 'Admin User',
+                'password' => bcrypt('password'),
+            ]
+        );
 
-        // Create test user
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Create test user (check if exists first)
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => bcrypt('password'),
+            ]
+        );
 
-        // Create additional users
-        User::factory(8)->create();
+        // Create additional users only if we don't have enough
+        $currentUserCount = User::count();
+        if ($currentUserCount < 10) {
+            User::factory(10 - $currentUserCount)->create();
+        }
 
         $this->call([
             ShieldSeeder::class,

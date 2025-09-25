@@ -30,13 +30,13 @@ class EditWork extends EditRecord
             ];
         })->toArray();
 
-        // Load existing assets for display (optional, for reference)
-        $assets = $record->assets;
-        $data['assets_quick'] = $assets->map(function ($asset) {
+        // Load existing media files for display (using Spatie MediaLibrary)
+        $media = $record->getMedia() ?? collect();
+        $data['assets_quick'] = $media->map(function ($mediaItem) {
             return [
-                'file' => $asset->path,
-                'label' => $asset->filename,
-                'metadata_json' => json_encode($asset->metadata),
+                'file' => $mediaItem->getPath(),
+                'label' => $mediaItem->name,
+                'metadata_json' => json_encode($mediaItem->custom_properties),
             ];
         })->toArray();
 
