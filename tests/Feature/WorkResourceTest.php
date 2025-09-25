@@ -22,16 +22,14 @@ it('can create a work with relationships', function () {
         'slug' => 'test-tafsir',
         'type' => 'tafsir',
         'status' => 'draft',
-        'primary_place_id' => $place->id,
-        'languages' => ['Arabic', 'Indonesian'],
+        'place_id' => $place->id,
         'summary' => 'A comprehensive test tafsir work.',
     ];
 
     $work = Work::create($workData);
 
     expect(Work::where('title', 'Test Tafsir')->exists())->toBeTrue();
-    expect($work->primary_place_id)->toBe($place->id);
-    expect($work->languages)->toBe(['Arabic', 'Indonesian']);
+    expect($work->place_id)->toBe($place->id);
 });
 
 it('can search works by title', function () {
@@ -60,23 +58,15 @@ it('requires title and slug for work creation', function () {
     // Validation seharusnya terjadi di level Filament Resource Form, bukan model
 });
 
-it('can create work with alternative titles', function () {
+it('can create work with metadata', function () {
     $work = Work::factory()->create([
         'title' => 'Primary Title',
-        'alternative_titles' => [
-            [
-                'title' => 'Alternative Title 1',
-                'language' => 'Arabic',
-                'type' => 'transliteration',
-            ],
-            [
-                'title' => 'Alternative Title 2',
-                'language' => 'English',
-                'type' => 'translation',
-            ],
+        'metadata' => [
+            'keywords' => ['keyword1', 'keyword2'],
+            'notes' => 'Some notes about this work',
         ],
     ]);
 
-    expect($work->alternative_titles)->toHaveCount(2);
-    expect($work->alternative_titles[0]['title'])->toBe('Alternative Title 1');
+    expect($work->metadata)->toHaveKey('keywords');
+    expect($work->metadata['keywords'])->toContain('keyword1');
 });

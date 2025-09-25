@@ -64,12 +64,6 @@ class Instance extends Model implements HasMedia
             ->withTimestamps();
     }
 
-    public function assets(): HasMany
-    {
-        return $this->hasMany(Asset::class, 'assetable_id')
-            ->where('assetable_type', static::class);
-    }
-
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('cover_images')

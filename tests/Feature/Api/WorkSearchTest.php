@@ -17,29 +17,26 @@ it('can search works using scout search', function () {
     // Create test works
     $work1 = Work::factory()->create([
         'title' => 'Introduction to Laravel',
-        'subtitle' => 'Modern PHP Framework',
         'summary' => 'A comprehensive guide to Laravel development',
         'status' => 'published',
         'type' => 'book',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     $work2 = Work::factory()->create([
         'title' => 'PHP Programming',
-        'subtitle' => 'Advanced Techniques',
         'summary' => 'Deep dive into PHP programming concepts',
         'status' => 'published',
         'type' => 'article',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     $work3 = Work::factory()->create([
         'title' => 'JavaScript Fundamentals',
-        'subtitle' => 'Frontend Development',
         'summary' => 'Learn JavaScript from scratch',
         'status' => 'draft',
         'type' => 'manuscript',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     // Test Scout search
@@ -51,13 +48,13 @@ it('can search works using scout search', function () {
                 '*' => [
                     'id',
                     'title',
-                    'subtitle',
                     'summary',
                     'slug',
                     'type',
                     'status',
-                    'languages',
-                    'primary_place_id',
+                    'place_id',
+                    'author_id',
+                    'visibility',
                     'created_at',
                     'updated_at',
                 ],
@@ -75,20 +72,18 @@ it('can search works using legacy search', function () {
     // Create test works
     $work1 = Work::factory()->create([
         'title' => 'PHP Best Practices',
-        'subtitle' => 'Clean Code',
         'summary' => 'Writing maintainable PHP code',
         'status' => 'published',
         'type' => 'book',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     $work2 = Work::factory()->create([
         'title' => 'Laravel Testing',
-        'subtitle' => 'Unit and Feature Tests',
         'summary' => 'Complete testing guide for Laravel',
         'status' => 'published',
         'type' => 'article',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     // Test legacy search
@@ -107,14 +102,14 @@ it('can filter works by type', function () {
         'title' => 'Book Title',
         'type' => 'book',
         'status' => 'published',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     Work::factory()->create([
         'title' => 'Article Title',
         'type' => 'article',
         'status' => 'published',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     // Test type filter
@@ -133,14 +128,14 @@ it('can filter works by status', function () {
         'title' => 'Published Work',
         'status' => 'published',
         'type' => 'book',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     Work::factory()->create([
         'title' => 'Draft Work',
         'status' => 'draft',
         'type' => 'article',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     // Test status filter
@@ -159,14 +154,14 @@ it('can combine search and filters', function () {
         'title' => 'Laravel Advanced',
         'type' => 'book',
         'status' => 'published',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     Work::factory()->create([
         'title' => 'Laravel Basics',
         'type' => 'article',
         'status' => 'draft',
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     // Test combined search and filter
@@ -186,13 +181,13 @@ it('can sort works by different fields', function () {
     $work1 = Work::factory()->create([
         'title' => 'First Work',
         'created_at' => now()->subDays(2),
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     $work2 = Work::factory()->create([
         'title' => 'Second Work',
         'created_at' => now()->subDay(),
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     // Test sorting by created_at ascending
@@ -208,7 +203,7 @@ it('can sort works by different fields', function () {
 it('returns paginated results', function () {
     // Create multiple works
     Work::factory()->count(25)->create([
-        'primary_place_id' => $this->place->id,
+        'place_id' => $this->place->id,
     ]);
 
     $response = $this->getJson('/api/v1/works?per_page=10');

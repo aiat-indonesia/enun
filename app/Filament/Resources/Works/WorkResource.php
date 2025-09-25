@@ -31,23 +31,23 @@ class WorkResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['title', 'subtitle', 'summary', 'slug', 'languages', 'primaryPlace.name'];
+        return ['title', 'slug', 'summary', 'place.name'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         /** @var Work $record */
         return [
-            'Type' => $record->type,
-            'Status' => $record->status,
-            'Primary Place' => $record->primaryPlace?->name,
-            'Languages' => implode(', ', $record->languages ?? []),
+            'Type' => $record->type?->value ?? $record->type,
+            'Status' => $record->status?->value ?? $record->status,
+            'Place' => $record->place?->name,
+            'Author' => $record->author?->name,
         ];
     }
 
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['primaryPlace']);
+        return parent::getGlobalSearchEloquentQuery()->with(['place', 'author']);
     }
 
     public static function form(Schema $schema): Schema
@@ -62,12 +62,7 @@ class WorkResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            RelationManagers\InstancesRelationManager::class,
-            RelationManagers\AgentsRelationManager::class,
-            RelationManagers\AssetsRelationManager::class,
-            RelationManagers\SubjectsRelationManager::class,
-        ];
+        return [];
     }
 
     public static function getPages(): array

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Agent;
+use App\Models\Place;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,20 +15,20 @@ return new class extends Migration
     {
         Schema::create('works', function (Blueprint $table) {
             $table->id();
-            $table->string('slug')->unique()->index();
-            $table->string('title');
-            $table->string('subtitle')->nullable();
-            $table->json('languages')->nullable(); // Array of languages
-            $table->text('summary')->nullable();
             $table->string('type')->nullable(); // manuscript, tafsir, book, journal, etc.
-            $table->string('status')->default('draft'); // draft, in_review, published, archived
-            $table->foreignId('primary_place_id')->nullable()->constrained('places')->onDelete('set null');
+            $table->string('title');
+            $table->string('slug')->unique()->index();
+            $table->json('summary')->nullable();
+            $table->foreignIdFor(Agent::class, 'author_id')->nullable()->constrained()->nullOnDelete();
+            $table->json('contributors')->nullable();
+            $table->foreignIdFor(Place::class, 'place_id')->nullable()->constrained()->nullOnDelete();
+            $table->json('creation_year')->nullable();
             $table->json('metadata')->nullable(); // Flexible metadata
-            $table->json('alternative_titles')->nullable(); // Array of alternative titles
-            $table->json('external_identifiers')->nullable(); // DOI, ISBN, etc.
-            $table->json('seller_links')->nullable(); // Marketplace links
-            $table->timestamps();
+            $table->string('status')->default('draft'); // draft, in_review, published, archived
+            $table->string('visibility')->default('private'); // private, public, restricted
+            $table->timestamp('published_at')->nullable();
             $table->softDeletes();
+            $table->timestamps();
         });
     }
 

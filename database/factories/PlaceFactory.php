@@ -24,19 +24,10 @@ class PlaceFactory extends Factory
 
         return [
             'name' => fake()->city(),
+            'slug' => str(fake()->city())->slug(),
             'type' => $type,
-            'lat' => $lat,
-            'lng' => $lng,
-            'geojson_polygon' => fake()->optional(0.3)->randomElements([
-                'type' => 'Polygon',
-                'coordinates' => [[[
-                    [$lng - 0.1, $lat - 0.1],
-                    [$lng + 0.1, $lat - 0.1],
-                    [$lng + 0.1, $lat + 0.1],
-                    [$lng - 0.1, $lat + 0.1],
-                    [$lng - 0.1, $lat - 0.1],
-                ]]],
-            ]),
+            'latitude' => $lat,
+            'longitude' => $lng,
             'metadata' => [
                 'population' => fake()->optional(0.5)->numberBetween(1000, 1000000),
                 'established' => fake()->optional(0.4)->year(),

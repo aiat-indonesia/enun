@@ -124,8 +124,7 @@ describe('Work Resource Create', function () {
                 'summary' => 'A test summary',
                 'type' => 'tafsir',
                 'status' => 'draft',
-                'primary_place_id' => $place->id,
-                'languages' => ['Arabic', 'English'],
+                'place_id' => $place->id,
             ])
             ->call('create')
             ->assertNotified();
@@ -169,15 +168,14 @@ describe('Work Resource Create', function () {
                 'summary' => 'Test summary',
                 'type' => 'manuscript',
                 'status' => 'draft',
-                'primary_place_id' => $place->id,
-                'languages' => ['Arabic', 'English', 'Malay'],
+                'place_id' => $place->id,
                 'metadata' => ['key1' => 'value1', 'key2' => 'value2'],
             ])
             ->call('create')
             ->assertNotified();
 
         $work = Work::where('slug', 'test-work-metadata')->first();
-        expect($work->languages)->toBe(['Arabic', 'English', 'Malay'])
+        expect($work->metadata)->toHaveKey('key1')
             ->and($work->metadata)->toBe(['key1' => 'value1', 'key2' => 'value2']);
     });
 });
@@ -195,14 +193,14 @@ describe('Work Resource Edit', function () {
         $work = Work::factory()->create([
             'title' => 'Existing Work',
             'type' => 'manuscript',
-            'primary_place_id' => $place->id,
+            'place_id' => $place->id,
         ]);
 
         Livewire::test(EditWork::class, ['record' => $work->id])
             ->assertFormSet([
                 'title' => 'Existing Work',
                 'type' => 'manuscript',
-                'primary_place_id' => $place->id,
+                'place_id' => $place->id,
             ]);
     });
 

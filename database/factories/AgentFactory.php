@@ -25,6 +25,13 @@ class AgentFactory extends Factory
             'birth_date' => $type === 'person' ? fake()->optional(0.6)->date('Y-m-d', '-20 years') : null,
             'death_date' => $type === 'person' ? fake()->optional(0.2)->date('Y-m-d', 'now') : null,
             'biography' => fake()->optional(0.7)->paragraph(),
+            'roles' => fake()->optional(0.5)->randomElements([
+                'author',
+                'editor',
+                'translator',
+                'publisher',
+                'illustrator',
+            ], mt_rand(1, 3)),
             'metadata' => [
                 'aliases' => fake()->optional(0.3)->words(2),
                 'nationality' => fake()->optional(0.5)->country(),

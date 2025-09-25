@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Agent;
+use App\Models\Place;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('instance_id')->constrained()->onDelete('cascade');
-            $table->string('item_identifier')->nullable(); // Barcode, shelfmark, etc.
-            $table->string('location')->nullable(); // Physical or virtual location
-            $table->string('call_number')->nullable(); // Library call number
-            $table->string('availability')->default('available'); // available, checked_out, damaged, etc.
+            $table->foreignId('instance_id')->constrained()->cascadeOnDelete();
+            $table->string('identifier')->nullable(); // Barcode, shelfmark, etc.
+            $table->foreignIdFor(Place::class, 'location')->nullable()->constrained()->nullOnDelete();
+            $table->string('condition')->nullable(); // good, fair, poor, etc.
+            $table->foreignIdFor(Agent::class, 'current_holder')->nullable()->constrained()->nullOnDelete();
             $table->json('metadata')->nullable(); // Flexible metadata
             $table->timestamps();
         });

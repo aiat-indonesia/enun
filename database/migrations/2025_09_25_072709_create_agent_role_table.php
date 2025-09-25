@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subject_work', function (Blueprint $table) {
+        Schema::create('agent_role', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('subject_id')->constrained()->onDelete('cascade');
-            $table->foreignId('work_id')->constrained()->onDelete('cascade');
+            $table->foreignId('agent_id')->constrained()->cascadeOnDelete();
+            $table->morphs('agentable'); // agentable_id, agentable_type
+            $table->string('role'); // author, editor, translator, etc.
             $table->timestamps();
 
-            $table->unique(['subject_id', 'work_id']);
+            $table->unique(['agent_id', 'agentable_id', 'agentable_type', 'role']);
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subject_work');
+        Schema::dropIfExists('agent_role');
     }
 };

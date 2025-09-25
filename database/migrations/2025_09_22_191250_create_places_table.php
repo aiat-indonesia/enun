@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('places', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug')->unique();
             $table->string('type')->default('city'); // province, regency, city, village, etc.
             $table->foreignId('parent_id')->nullable()->constrained('places')->onDelete('set null');
-            $table->decimal('lat', 10, 7)->nullable(); // Centroid latitude
-            $table->decimal('lng', 10, 7)->nullable(); // Centroid longitude
-            $table->json('geojson_polygon')->nullable(); // Optional polygon boundary
+            $table->decimal('latitude', 10, 7)->nullable(); // Centroid latitude
+            $table->decimal('longitude', 10, 7)->nullable(); // Centroid longitude
             $table->json('metadata')->nullable(); // Flexible metadata
             $table->timestamps();
-            
-            $table->index(['lat', 'lng']); // For geospatial queries
+
+            $table->index(['latitude', 'longitude']); // For geospatial queries
         });
     }
 

@@ -54,7 +54,7 @@ class WorksTable
                         ->orWhere('languages', 'like', "%{$search}%")
                         ->orWhere('type', 'like', "%{$search}%")
                         ->orWhere('status', 'like', "%{$search}%")
-                        ->orWhereHas('primaryPlace', function (Builder $query) use ($search) {
+                        ->orWhereHas('place', function (Builder $query) use ($search) {
                             $query->where('name', 'like', "%{$search}%");
                         });
                 });
@@ -93,10 +93,24 @@ class WorksTable
                         'danger' => 'archived',
                     ])
                     ->searchable(),
-                TextColumn::make('primaryPlace.name')
-                    ->label('Primary Place')
+                TextColumn::make('author.name')
+                    ->label('Author')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('place.name')
+                    ->label('Place')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('visibility')
+                    ->badge()
+                    ->colors([
+                        'success' => 'public',
+                        'warning' => 'restricted',
+                        'gray' => 'private',
+                    ])
+                    ->toggleable(),
                 TextColumn::make('instances_count')
                     ->label('Instances')
                     ->counts('instances')
@@ -122,8 +136,6 @@ class WorksTable
                     ->constraints([
                         TextConstraint::make('title')
                             ->label('Title'),
-                        TextConstraint::make('subtitle')
-                            ->label('Subtitle'),
                         TextConstraint::make('summary')
                             ->label('Summary'),
                         TextConstraint::make('slug')
@@ -134,10 +146,22 @@ class WorksTable
                         SelectConstraint::make('status')
                             ->label('Status')
                             ->options(WorkStatus::options()),
-                        TextConstraint::make('languages')
-                            ->label('Languages'),
-                        RelationshipConstraint::make('primaryPlace')
-                            ->label('Primary Place')
+                        SelectConstraint::make('visibility')
+                            ->label('Visibility')
+                            ->options([
+                                'private' => 'Private',
+                                'public' => 'Public',
+                                'restricted' => 'Restricted',
+                            ]),
+                        RelationshipConstraint::make('author')
+                            ->label('Author')
+                            ->selectable(
+                                IsRelatedToOperator::make()
+                                    ->titleAttribute('name')
+                                    ->searchable()
+                            ),
+                        RelationshipConstraint::make('place')
+                            ->label('Place')
                             ->selectable(
                                 IsRelatedToOperator::make()
                                     ->titleAttribute('name')
@@ -155,7 +179,7 @@ class WorksTable
                 SelectFilter::make('status')
                     ->options(WorkStatus::options()),
                 SelectFilter::make('primary_place_id')
-                    ->relationship('primaryPlace', 'name')
+                    ->relationship('place', 'name')
                     ->searchable()
                     ->preload(),
             ])

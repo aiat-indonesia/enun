@@ -14,20 +14,19 @@ class Place extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'type',
         'parent_id',
-        'lat',
-        'lng',
-        'geojson_polygon',
+        'latitude',
+        'longitude',
         'metadata',
     ];
 
     protected function casts(): array
     {
         return [
-            'lat' => 'decimal:7',
-            'lng' => 'decimal:7',
-            'geojson_polygon' => 'array',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
             'metadata' => 'array',
         ];
     }
@@ -42,14 +41,24 @@ class Place extends Model
         return $this->hasMany(Place::class, 'parent_id');
     }
 
-    public function worksAsPrimary(): HasMany
-    {
-        return $this->hasMany(Work::class, 'primary_place_id');
-    }
-
     public function works(): HasMany
     {
-        return $this->hasMany(Work::class, 'primary_place_id');
+        return $this->hasMany(Work::class, 'place_id');
+    }
+
+    public function birthPlaceAgents(): HasMany
+    {
+        return $this->hasMany(Agent::class, 'birth_place');
+    }
+
+    public function deathPlaceAgents(): HasMany
+    {
+        return $this->hasMany(Agent::class, 'death_place');
+    }
+
+    public function itemsAsLocation(): HasMany
+    {
+        return $this->hasMany(Item::class, 'location');
     }
 
     public function instancesAsPublication(): HasMany

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Works\Schemas;
 
+use App\Enums\InstanceFormat;
 use App\Enums\WorkStatus;
 use App\Enums\WorkType;
 use Filament\Forms\Components\FileUpload;
@@ -38,9 +39,6 @@ class WorkForm
                                         Textarea::make('summary')
                                             ->rows(3)
                                             ->columnSpanFull(),
-                                        TagsInput::make('languages')
-                                            ->suggestions(['Arabic', 'English', 'Persian', 'Turkish', 'Urdu', 'Malay'])
-                                            ->columnSpanFull(),
                                     ])
                                     ->columns(2),
 
@@ -53,21 +51,98 @@ class WorkForm
                                             ->required()
                                             ->default('draft')
                                             ->options(WorkStatus::options()),
-                                        Select::make('primary_place_id')
-                                            ->relationship('primaryPlace', 'name')
+                                        Select::make('visibility')
+                                            ->required()
+                                            ->default('private')
+                                            ->options([
+                                                'private' => 'Private',
+                                                'public' => 'Public',
+                                                'restricted' => 'Restricted',
+                                            ]),
+                                        Select::make('author_id')
+                                            ->relationship('author', 'name')
+                                            ->searchable()
+                                            ->preload()
+                                            ->placeholder('Choose an author...')
+                                            ->createOptionForm([
+                                                TextInput::make('name')
+                                                    ->required()
+                                                    ->label('Author name'),
+                                                TextInput::make('metadata')
+                                                    ->label('Metadata (JSON)')
+                                                    ->placeholder('{"birth_year":"..."}'),
+                                            ]),
+                                        Select::make('place_id')
+                                            ->relationship('place', 'name')
                                             ->searchable()
                                             ->preload()
                                             ->helperText('Select the primary geographic location associated with this work')
-                                            ->placeholder('Choose a place...'),
+                                            ->placeholder('Choose a place...')
+                                            ->createOptionForm([
+                                                TextInput::make('name')
+                                                    ->required()
+                                                    ->label('Place name'),
+                                                TextInput::make('metadata')
+                                                    ->label('Metadata (JSON)')
+                                                    ->placeholder('{"region":"..."}'),
+                                            ]),
                                         TagsInput::make('subjects')
                                             ->suggestions(['Quranic Studies', 'Hadith', 'Fiqh', 'Theology', 'History', 'Literature'])
                                             ->columnSpanFull(),
                                     ])
-                                    ->columns(3),
+                                    ->columns(2),
                             ]),
 
                         Tabs\Tab::make('Additional Data')
                             ->schema([
+                                Section::make('Contributors & Timeline')
+                                    ->schema([
+                                        Repeater::make('contributors')
+                                            ->schema([
+                                                TextInput::make('name')
+                                                    ->required()
+                                                    ->label('Contributor Name'),
+                                                Select::make('role')
+                                                    ->options([
+                                                        'translator' => 'Translator',
+                                                        'editor' => 'Editor',
+                                                        'commentator' => 'Commentator',
+                                                        'compiler' => 'Compiler',
+                                                        'illustrator' => 'Illustrator',
+                                                        'other' => 'Other',
+                                                    ])
+                                                    ->required(),
+                                                TextInput::make('notes')
+                                                    ->label('Additional Notes'),
+                                            ])
+                                            ->columns(3)
+                                            ->defaultItems(0)
+                                            ->columnSpanFull(),
+
+                                        Repeater::make('creation_year')
+                                            ->schema([
+                                                TextInput::make('year')
+                                                    ->numeric()
+                                                    ->label('Year')
+                                                    ->placeholder('e.g., 1450'),
+                                                Select::make('type')
+                                                    ->options([
+                                                        'exact' => 'Exact Year',
+                                                        'approximate' => 'Approximate',
+                                                        'range_start' => 'Range Start',
+                                                        'range_end' => 'Range End',
+                                                    ])
+                                                    ->default('exact'),
+                                                TextInput::make('notes')
+                                                    ->label('Notes')
+                                                    ->placeholder('e.g., based on colophon'),
+                                            ])
+                                            ->columns(3)
+                                            ->defaultItems(0)
+                                            ->columnSpanFull(),
+                                    ])
+                                    ->columns(1),
+
                                 Section::make('Alternative Information')
                                     ->schema([
                                         Repeater::make('alternative_titles')
@@ -174,6 +249,119 @@ class WorkForm
                                             ->disk('public')
                                             ->helperText('Upload related documents, transcriptions, or research notes')
                                             ->downloadable(),
+                                    ]),
+                            ]),
+                        Tabs\Tab::make('Relations')
+                            ->schema([
+                                Section::make('Instances')
+                                    ->schema([
+                                        Repeater::make('instances')
+                                            ->relationship('instances')
+                                            ->schema([
+                                                TextInput::make('label')
+                                                    ->required()
+                                                    ->placeholder('e.g. 1st edition / Manuscript A'),
+                                                Select::make('publisher_id')
+                                                    ->relationship('publisher', 'name')
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->placeholder('Select publisher')
+                                                    ->createOptionForm([
+                                                        TextInput::make('name')
+                                                            ->required()
+                                                            ->label('Publisher name'),
+                                                        TextInput::make('metadata')
+                                                            ->label('Metadata (JSON)')
+                                                            ->placeholder('{"type":"institution"}'),
+                                                    ]),
+                                                Select::make('publication_place_id')
+                                                    ->relationship('publicationPlace', 'name')
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->placeholder('Select publication place')
+                                                    ->createOptionForm([
+                                                        TextInput::make('name')
+                                                            ->required()
+                                                            ->label('Place name'),
+                                                    ]),
+                                                TextInput::make('publication_year')
+                                                    ->placeholder('e.g. 1892'),
+                                                Select::make('format')
+                                                    ->options(InstanceFormat::options())
+                                                    ->placeholder('Select format'),
+                                                KeyValue::make('identifiers')
+                                                    ->keyLabel('Type')
+                                                    ->valueLabel('Value')
+                                                    ->helperText('ISBN, DOI, shelfmark, etc.'),
+                                            ])
+                                            ->createItemButtonLabel('Add instance')
+                                            ->defaultItems(0)
+                                            ->columns(3)
+                                            ->columnSpanFull(),
+                                    ]),
+
+                                Section::make('Agents')
+                                    ->schema([
+                                        Repeater::make('agents')
+                                            ->schema([
+                                                Select::make('agent_id')
+                                                    ->label('Agent')
+                                                    ->options(fn () => \App\Models\Agent::pluck('name', 'id'))
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->createOptionForm([
+                                                        TextInput::make('name')
+                                                            ->required()
+                                                            ->label('Agent name'),
+                                                        TextInput::make('type')
+                                                            ->label('Type')
+                                                            ->placeholder('Person / Organization'),
+                                                    ]),
+                                                Select::make('role')
+                                                    ->label('Role')
+                                                    ->required()
+                                                    ->options([
+                                                        'author' => 'Author',
+                                                        'editor' => 'Editor',
+                                                        'translator' => 'Translator',
+                                                        'publisher' => 'Publisher',
+                                                        'contributor' => 'Contributor',
+                                                    ])
+                                                    ->placeholder('Role for this agent'),
+                                            ])
+                                            ->createItemButtonLabel('Add agent')
+                                            ->defaultItems(0)
+                                            ->columns(2)
+                                            ->columnSpanFull(),
+                                    ]),
+
+                                Section::make('Assets (Quick)')
+                                    ->schema([
+                                        Repeater::make('assets_quick')
+                                            ->schema([
+                                                FileUpload::make('file')
+                                                    ->directory('work-assets')
+                                                    ->disk('public')
+                                                    ->preserveFilenames()
+                                                    ->helperText('Upload images, PDFs, or documents and they will be attached as assets'),
+                                                TextInput::make('label')
+                                                    ->placeholder('Optional label for this asset'),
+                                                TextInput::make('metadata_json')
+                                                    ->label('Metadata (JSON)')
+                                                    ->placeholder('{"source":"archive"}'),
+                                            ])
+                                            ->createItemButtonLabel('Add asset')
+                                            ->defaultItems(0)
+                                            ->columns(1)
+                                            ->columnSpanFull(),
+                                    ]),
+
+                                Section::make('Subjects / Tags')
+                                    ->schema([
+                                        TagsInput::make('subjects')
+                                            ->suggestions(['Quranic Studies', 'Hadith', 'Fiqh', 'Theology', 'History', 'Literature'])
+                                            ->helperText('Add or select subjects (tags) related to this work')
+                                            ->columnSpanFull(),
                                     ]),
                             ]),
                     ])

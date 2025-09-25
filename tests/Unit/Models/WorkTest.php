@@ -22,34 +22,35 @@ describe('Work Model', function () {
         $work = Work::factory()->make([
             'title' => 'Test Tafsir Work',
             'slug' => 'test-tafsir-work',
-            'summary' => 'A test summary',
+            'summary' => ['A test summary'],
             'type' => 'tafsir',
             'status' => 'published',
         ]);
 
         expect($work->title)->toBe('Test Tafsir Work')
             ->and($work->slug)->toBe('test-tafsir-work')
-            ->and($work->summary)->toBe('A test summary')
-            ->and($work->type)->toBe('tafsir')
-            ->and($work->status)->toBe('published');
+            ->and($work->summary)->toBe(['A test summary'])
+            ->and($work->type->value)->toBe('tafsir')
+            ->and($work->status->value)->toBe('published');
     });
 
     it('handles JSON fields correctly', function () {
-        $languages = ['Arabic', 'English', 'Malay'];
+        $summary = ['First paragraph', 'Second paragraph'];
         $metadata = ['author' => 'Test Author', 'year' => 2024];
-        $alternativeTitles = [
-            ['title' => 'Alternative Title', 'language' => 'English'],
+        $contributors = [
+            ['name' => 'John Doe', 'role' => 'editor'],
+            ['name' => 'Jane Smith', 'role' => 'translator'],
         ];
 
         $work = Work::factory()->create([
-            'languages' => $languages,
+            'summary' => $summary,
             'metadata' => $metadata,
-            'alternative_titles' => $alternativeTitles,
+            'contributors' => $contributors,
         ]);
 
-        expect($work->languages)->toBe($languages)
+        expect($work->summary)->toBe($summary)
             ->and($work->metadata)->toBe($metadata)
-            ->and($work->alternative_titles)->toBe($alternativeTitles);
+            ->and($work->contributors)->toBe($contributors);
     });
 
     it('has soft deletes enabled', function () {
@@ -71,12 +72,20 @@ describe('Work Model', function () {
 });
 
 describe('Work Relationships', function () {
-    it('belongs to a primary place', function () {
+    it('belongs to a place', function () {
         $place = Place::factory()->create();
-        $work = Work::factory()->create(['primary_place_id' => $place->id]);
+        $work = Work::factory()->create(['place_id' => $place->id]);
 
-        expect($work->primaryPlace)->toBeInstanceOf(Place::class)
-            ->and($work->primaryPlace->id)->toBe($place->id);
+        expect($work->place)->toBeInstanceOf(Place::class)
+            ->and($work->place->id)->toBe($place->id);
+    });
+
+    it('belongs to an author', function () {
+        $author = Agent::factory()->create();
+        $work = Work::factory()->create(['author_id' => $author->id]);
+
+        expect($work->author)->toBeInstanceOf(Agent::class)
+            ->and($work->author->id)->toBe($author->id);
     });
 
     it('has many instances', function () {

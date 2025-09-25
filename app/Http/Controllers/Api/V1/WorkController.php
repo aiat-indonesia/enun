@@ -15,29 +15,14 @@ class WorkController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        // Use Scout search if search query is provided
-        if ($request->has('q') && ! empty($request->get('q'))) {
-            $searchResults = Work::search($request->get('q'))
-                ->query(function ($query) use ($request) {
-                    $query->with(['subjects', 'agents', 'primaryPlace'])
-                        ->withCount('instances');
+        // Regular query builder for requests
+        $query = Work::with(['author', 'place'])
+            ->withCount('instances');
 
-                    // Apply additional filters to search results
-                    $this->applyFilters($query, $request);
-                });
+        $this->applyFilters($query, $request);
 
-            $perPage = min($request->get('per_page', 15), 100);
-            $works = $searchResults->paginate($perPage);
-        } else {
-            // Regular query builder for non-search requests
-            $query = Work::with(['subjects', 'agents', 'primaryPlace'])
-                ->withCount('instances');
-
-            $this->applyFilters($query, $request);
-
-            $perPage = min($request->get('per_page', 15), 100);
-            $works = $query->paginate($perPage);
-        }
+        $perPage = min($request->get('per_page', 15), 100);
+        $works = $query->paginate($perPage);
 
         return WorkResource::collection($works);
     }
@@ -56,22 +41,12 @@ class WorkController extends Controller
             $query->where('status', $request->get('status'));
         }
 
-        if ($request->has('language')) {
-            $query->whereJsonContains('languages', $request->get('language'));
-        }
-
-        if ($request->has('subject')) {
-            $query->whereHas('subjects', function ($q) use ($request) {
-                $q->where('name', 'like', '%'.$request->get('subject').'%');
-            });
-        }
-
         if ($request->has('place')) {
             $place = $request->get('place');
             if (is_numeric($place)) {
-                $query->where('primary_place_id', $place);
+                $query->where('place_id', $place);
             } else {
-                $query->whereHas('primaryPlace', function ($q) use ($place) {
+                $query->whereHas('place', function ($q) use ($place) {
                     $q->where('name', 'like', '%'.$place.'%');
                 });
             }
@@ -102,9 +77,8 @@ class WorkController extends Controller
     public function show(Work $work): WorkResource
     {
         $work->load([
-            'subjects',
-            'agents.pivot',
-            'primaryPlace',
+            'author',
+            'place',
             'instances' => function ($query) {
                 $query->with(['items', 'publisher']);
             },

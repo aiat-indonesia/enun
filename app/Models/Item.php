@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use App\Enums\ItemAvailability;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -17,17 +15,16 @@ class Item extends Model implements HasMedia
 
     protected $fillable = [
         'instance_id',
-        'item_identifier',
+        'identifier',
         'location',
-        'call_number',
-        'availability',
+        'condition',
+        'current_holder',
         'metadata',
     ];
 
     protected function casts(): array
     {
         return [
-            'availability' => ItemAvailability::class,
             'metadata' => 'array',
         ];
     }
@@ -37,10 +34,14 @@ class Item extends Model implements HasMedia
         return $this->belongsTo(Instance::class);
     }
 
-    public function assets(): HasMany
+    public function location(): BelongsTo
     {
-        return $this->hasMany(Asset::class, 'assetable_id')
-            ->where('assetable_type', static::class);
+        return $this->belongsTo(Place::class, 'location');
+    }
+
+    public function currentHolder(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class, 'current_holder');
     }
 
     public function registerMediaCollections(): void
